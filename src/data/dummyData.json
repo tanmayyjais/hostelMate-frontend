@@ -1,0 +1,372 @@
+{
+   "complains": [
+      {
+         "id": "1",
+         "user": "65756295b1a9ebd16713b475",
+         "title": "Tap is broken",
+         "description": "Block B second floor bathroom tap is broken",
+         "image": "",
+         "status": "pending"
+      },
+      {
+         "id": "2",
+         "user": "65720c08e4421f606f62c59a",
+         "title": "Fan is broken",
+         "description": "Block B second floor room 5 fan is broken",
+         "image": "",
+         "status": "pending"
+      },
+      {
+         "id": "3",
+         "user": "6574152a239fdd35f04c5d6b",
+         "title": "Bulb is missing",
+         "description": "Block A third floor room 8 one bulb is missing",
+         "image": "",
+         "status": "accepted"
+      }
+   ],
+   "announcements": [
+      {
+         "title": "Meeting",
+         "description": "There is a meeting for Block B students at 6 pm",
+         "image": ""
+      },
+      {
+         "title": "Drinking water interrupt",
+         "description": "There are no drinking water today from 12 pm to 6 pm",
+         "image": ""
+      },
+      {
+         "title": "Payment Update",
+         "description": "Final year engineering students, update your hostel fees payment receipts before 31/12/2023",
+         "image": ""
+      }
+   ],
+   "users": [
+      {
+         "id": "65720c08e4421f606f62c59a",
+         "profile_picture": "",
+         "full_name": "Sachira Heshan",
+         "email": "2019e055@eng.jfn.ac.lk",
+         "password": "123",
+         "batch": "E19",
+         "faculty": "Faculty of Engineering",
+         "type": "student"
+      },
+      {
+         "id": "65756295b1a9ebd16713b475",
+         "profile_picture": "",
+         "full_name": "Anuka Mithara",
+         "email": "2019e054@eng.jfn.ac.lk",
+         "password": "12345",
+         "batch": "A18",
+         "faculty": "Faculty of Agriculture",
+         "type": "student"
+      },
+      {
+         "id": "65756262b1a9ebd16713b472",
+         "profile_picture": "",
+         "full_name": "Yasiru Kawsala",
+         "email": "2019e060@eng.jfn.ac.lk",
+         "password": "12345",
+         "batch": "ET18",
+         "faculty": "Faculty of Technology",
+         "type": "student"
+      },
+      {
+         "id": "6574152a239fdd35f04c5d6b",
+         "profile_picture": "",
+         "full_name": "Chamod Lakshan",
+         "email": "2019e059@eng.jfn.ac.lk",
+         "password": "12345678",
+         "batch": "E19",
+         "faculty": "Faculty of Engineering",
+         "type": "student"
+      }
+   ],
+   "gate_passes": [
+      {
+         "id": "1",
+         "name": "Sachira Heshan",
+         "user": "65720c08e4421f606f62c59a",
+         "registration_number": "2019/E/055",
+         "reason": "Going to a competition",
+         "departure_date": "15 Nov 2023",
+         "departure_time": "6.00 PM",
+         "arrival_date": "18 Nov 2023",
+         "arrival_time": "6.00 AM",
+         "status": "pending"
+      },
+      {
+         "id": "2",
+         "name": "Anuka Mithara",
+         "user": "65756295b1a9ebd16713b475",
+         "registration_number": "2019/E/054",
+         "reason": "Going to a competition",
+         "departure_date": "15 Nov 2023",
+         "departure_time": "6.00 PM",
+         "arrival_date": "18 Nov 2023",
+         "arrival_time": "6.00 AM",
+         "status": "pending"
+      },
+      {
+         "id": "3",
+         "name": "Chamod Lakshan",
+         "user": "6574152a239fdd35f04c5d6b",
+         "registration_number": "2019/E/059",
+         "reason": "Going to a competition",
+         "departure_date": "16 Nov 2023",
+         "departure_time": "6.00 PM",
+         "arrival_date": "18 Nov 2023",
+         "arrival_time": "5.00 AM",
+         "status": "accepted"
+      }
+   ],
+   "pending_room_requests": [
+      {
+         "id": "450343432433",
+         "name": "Anuka Mithara",
+         "batch": "A18",
+         "user": "65756295b1a9ebd16713b475",
+         "faculty": "Faculty of Agriculture",
+         "date_requested": "11 Nov 2023 @ 1.55 PM",
+         "status": "pending_checklist",
+         "member_details": [
+            {
+               "email": "2019e054@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e055@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e059@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e060@eng.jfn.ac.lk"
+            }
+         ],
+         "reason": "Final year (4th year)"
+      },
+      {
+         "id": "435034334952433",
+         "name": "Yasiru Kawsala",
+         "batch": "A18",
+         "user": "65756262b1a9ebd16713b472",
+         "faculty": "Faculty of Agriculture",
+         "date_requested": "12 Nov 2023 @ 3.12 PM",
+         "status": "pending_acceptance",
+         "member_details": [
+            {
+               "email": "2019e054@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e055@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e059@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e060@eng.jfn.ac.lk"
+            }
+         ],
+         "reason": "Final year (4th year)"
+      },
+      {
+         "id": "989034334952433",
+         "name": "Chamod Lakshan",
+         "batch": "E19",
+         "user": "6574152a239fdd35f04c5d6b",
+         "faculty": "Faculty of Engineering",
+         "date_requested": "13 Nov 2023 @ 2.50 PM",
+         "status": "pending_acceptance",
+         "member_details": [
+            {
+               "email": "2019e054@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e055@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e059@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e060@eng.jfn.ac.lk"
+            }
+         ],
+         "reason": "Final year (4th year)"
+      },
+      {
+         "id": "989034334952413",
+         "name": "Chamod Lakshan",
+         "batch": "E19",
+         "user": "6574152a239fdd35f04c5d6b",
+         "faculty": "Faculty of Engineering",
+         "date_requested": "14 Nov 2023 @ 2.50 PM",
+         "status": "pending_checklist",
+         "assigned_room_details": {
+            "block": "B",
+            "floor": "Second Floor",
+            "room": "S-05",
+            "date_accepted": "15 Nov 2023 @ 3.12 PM"
+         },
+         "member_details": [
+            {
+               "email": "2019e054@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e055@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e059@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e060@eng.jfn.ac.lk"
+            }
+         ],
+         "reason": "Final year (4th year)"
+      }
+   ],
+   "pending_room_checklists": [
+      {
+         "id": "450343432433",
+         "name": "Anuka Mithara",
+         "batch": "A18",
+         "user": "65756295b1a9ebd16713b475",
+         "faculty": "Faculty of Agriculture",
+         "date_assigned": "11 Nov 2023 @ 1.55 PM",
+         "status": "pending_checklist_acceptance",
+         "member_details": [
+            {
+               "email": "2019e054@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e055@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e059@eng.jfn.ac.lk"
+            },
+            {
+               "email": "2019e060@eng.jfn.ac.lk"
+            }
+         ],
+         "reason": "Final year (4th year)",
+         "room_furniture_details": [
+            {
+               "id": "01",
+               "item": "Bunk Bed - Wooden",
+               "condition": "New",
+               "quantity": "2"
+            },
+            {
+               "id": "02",
+               "item": "Study table - wooden",
+               "condition": "New",
+               "quantity": "4"
+            },
+            {
+               "id": "03",
+               "item": "Chair - wooden",
+               "condition": "New",
+               "quantity": "4"
+            },
+            {
+               "id": "04",
+               "item": "Cloth rack - wooden",
+               "condition": "New",
+               "quantity": "2"
+            },
+            {
+               "id": "05",
+               "item": "Wall mounted light",
+               "condition": "New",
+               "quantity": "2"
+            },
+            {
+               "id": "06",
+               "item": "Balcony light",
+               "condition": "New",
+               "quantity": "1"
+            },
+            {
+               "id": "07",
+               "item": "Fan with regulator",
+               "condition": "New",
+               "quantity": "1"
+            },
+            {
+               "id": "08",
+               "item": "Socket",
+               "condition": "New",
+               "quantity": "2"
+            },
+            {
+               "id": "09",
+               "item": "Switch",
+               "condition": "New",
+               "quantity": "1"
+            },
+            {
+               "id": "10",
+               "item": "Main door key",
+               "condition": "New",
+               "quantity": "2"
+            },
+            {
+               "id": "11",
+               "item": "Window door key",
+               "condition": "New",
+               "quantity": "1"
+            },
+            {
+               "id": "12",
+               "item": "Mattress",
+               "condition": "New",
+               "quantity": "4"
+            }
+         ],
+         "item_condition_details": "Window broken, Door broken, Plug not working, Light not working"
+      }
+   ],
+   "payment_receipts": [
+      {
+         "id": "1",
+         "user": "65756295b1a9ebd16713b475",
+         "name": "Anuka Mithara",
+         "registration_number": "2019/E/054",
+         "amount": "Rs. 3000",
+         "reason": "Year payment",
+         "receipt": "",
+         "status": "pending"
+      },
+      {
+         "id": "2",
+         "user": "6574152a239fdd35f04c5d6b",
+         "name": "Chamod Lakshan",
+         "registration_number": "2019/E/059",
+         "amount": "Rs. 3000",
+         "reason": "Year payment 2023",
+         "receipt": "",
+         "status": "pending"
+      },
+      {
+         "id": "3",
+         "user": "6574152a239fdd35f04c5d6b",
+         "name": "Chamod Lakshan",
+         "registration_number": "2019/E/059",
+         "amount": "Rs. 2000",
+         "reason": "Year payment 2020",
+         "receipt": "",
+         "status": "accepted"
+      },
+      {
+         "id": "4",
+         "user": "65756262b1a9ebd16713b472",
+         "name": "Yasiru Kawsala",
+         "registration_number": "2019/E/060",
+         "amount": "Rs. 3000",
+         "reason": "Year payment",
+         "receipt": "",
+         "status": "pending"
+      }
+   ]
+}
