@@ -37,45 +37,50 @@ const AddPaymentReceipt = ({ navigation }) => {
       try {
          const result = await DocumentPicker.getDocumentAsync({
             type: "application/pdf",
+            copyToCacheDirectory: false, // ✅ Avoid modifying the file location
          });
    
          // ✅ Handle user cancel action
          if (result.canceled) {
-            console.log("File selection was cancelled.");
+            //console.log("File selection was cancelled.");
             return;
          }
    
          // ✅ Ensure file selection is successful before setting state
          if (result.assets && result.assets.length > 0) {
-            setSelectedFile(result.assets[0]); // Store only the selected file
-            console.log("File selected:", result.assets[0].name);
+            const file = result.assets[0];
+            //console.log("File selected:", file);
+            
+            setSelectedFile({
+               uri: file.uri,
+               name: file.name || "receipt.pdf", // ✅ Ensure a valid filename
+               type: file.mimeType || "application/pdf",
+            });
          } else {
-            console.log("No file selected.");
+            //console.log("No file selected.");
          }
       } catch (error) {
          console.error("Error selecting file:", error);
          alert("Failed to select file. Please try again.");
       }
-   };
-   
+   };   
    
 
    const handleAddPaymentReceipt = async (values) => {
       try {
-         console.log("📤 Preparing to submit form with values:", values);
+         //console.log("📤 Preparing to submit form with values:", values);
    
          const token = await AsyncStorage.getItem("userToken");
          const storedUserInfo = await AsyncStorage.getItem("userInfo");
          const parsedUserInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
    
-         console.log("🔍 Checking AsyncStorage - User Info:", parsedUserInfo);
+         //console.log("🔍 Checking AsyncStorage - User Info:", parsedUserInfo);
    
          if (!token) {
             alert("Authentication required. Please log in again.");
             return;
          }
    
-         // ✅ Fix: Use `_id` if available, otherwise use `id`
          const userId = parsedUserInfo?._id || parsedUserInfo?.id;
          if (!userId) {
             alert("User information is missing.");
@@ -96,15 +101,16 @@ const AddPaymentReceipt = ({ navigation }) => {
          formData.append("amount", values.amount);
          formData.append("user", userId); // ✅ Ensure user ID is always passed
    
-         console.log("🚀 Submitting with user ID:", userId);
+         //console.log("🚀 Submitting with user ID:", userId);
    
+         // ✅ Fix file format for S3 compatibility
          formData.append("receipt", {
             uri: selectedFile.uri,
-            name: selectedFile.name,
-            type: "application/pdf",
+            name: selectedFile.name, 
+            type: selectedFile.type,
          });
    
-         console.log("📦 Final FormData before API Call:", formData);
+         //console.log("📦 Final FormData before API Call:", formData);
    
          const response = await axios.post(`${baseUrl}payment-receipts`, formData, {
             headers: {
@@ -113,14 +119,14 @@ const AddPaymentReceipt = ({ navigation }) => {
             },
          });
    
-         console.log("✅ Payment receipt uploaded successfully:", response.data);
+         //console.log("✅ Payment receipt uploaded successfully:", response.data);
          alert("Payment receipt submitted successfully!");
          navigation.goBack();
       } catch (error) {
          console.error("❌ Error submitting payment receipt:", error?.response?.data || error);
          alert("Failed to submit payment receipt. Please try again.");
       }
-   };              
+   };                 
    
 
    return (
