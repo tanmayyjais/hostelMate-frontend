@@ -1,7 +1,8 @@
 import { useState, useContext } from "react";
-import { View, Text, Image, StyleSheet, ToastAndroid } from "react-native";
+import { View, Text, Image, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, TextInput, Checkbox, IconButton } from "react-native-paper";
+import { useFonts } from "expo-font";
 
 import logo from "../../../assets/images/VNIT.png";
 import {
@@ -15,6 +16,14 @@ import {
 import { Formik } from "formik";
 import * as Yup from "yup";
 
+import {
+   fontBold,
+   fontLight,
+   fontMedium,
+   fontRegular,
+   fontThin,
+} from "../../constants/Fonts";
+
 import { AuthContext } from "../../context/AuthContext";
 
 const Login = ({ navigation }) => {
@@ -23,27 +32,28 @@ const Login = ({ navigation }) => {
 
    const { login, err, isLoading } = useContext(AuthContext);
 
-   const showToast = () => {
-      ToastAndroid.show("User login successfully!", ToastAndroid.SHORT);
-   };
+   const [fontsLoaded] = useFonts({
+      fontBold,
+      fontLight,
+      fontMedium,
+      fontRegular,
+      fontThin,
+   });
+
+   if (!fontsLoaded) return null;
 
    const handleLogin = (values) => {
       login(values.email, values.password).then((userInfo) => {
          if (userInfo) {
             if (userInfo.member_type === "student") {
-               navigation.navigate("UserDashboard"); // Route to user dashboard
+               navigation.navigate("UserDashboard");
             } else if (userInfo.member_type === "academicStaff") {
-               navigation.navigate("AdminDashboard"); // Route to admin dashboard
-            } 
+               navigation.navigate("AdminDashboard");
+            }
          } else {
-            ToastAndroid.show("Login failed!", ToastAndroid.SHORT);
+            Alert.alert("Failure", "Login failed!");
          }
       });
-   };   
-   
-
-   const handleMicrosoftLogin = () => {
-      //microsoft login
    };
 
    const loginSchema = Yup.object({
@@ -59,8 +69,8 @@ const Login = ({ navigation }) => {
             <View style={styles.imageContainer}>
                <Image source={logo} resizeMode="contain" style={styles.image} />
             </View>
-            <Text style={styles.title}>Login</Text>
-            <Text style={styles.text}>
+            <Text style={[styles.title, { fontFamily: "fontBold" }]}>Login</Text>
+            <Text style={[styles.text, { fontFamily: "fontRegular" }]}>
                Welcome to Hostel Mate - Hostel Management Application
             </Text>
             <View style={styles.loginForm}>
@@ -76,175 +86,123 @@ const Login = ({ navigation }) => {
                      values,
                      errors,
                      touched,
-                  }) => {
-                     return (
-                        <View>
-                           <View>
-                              <TextInput
-                                 mode="outlined"
-                                 label={"Email"}
-                                 keyboardType="email-address"
-                                 keyboardAppearance="dark"
-                                 onChangeText={handleChange("email")}
-                                 onBlur={handleBlur("email")}
-                                 value={values.email}
-                                 selectionColor={lightGray}
-                                 cursorColor={primaryBlue}
-                                 outlineColor={lightGray}
-                                 activeOutlineColor={primaryBlue}
-                                 outlineStyle={{ borderRadius: 4 }}
-                              />
-                              {errors.email && touched.email ? (
-                                 <Text style={styles.errorText}>
-                                    {errors.email}
-                                 </Text>
-                              ) : null}
-                              <TextInput
-                                 mode="outlined"
-                                 label={"Password"}
-                                 keyboardType="password"
-                                 onChangeText={handleChange("password")}
-                                 onBlur={handleBlur("password")}
-                                 value={values.password}
-                                 selectionColor={lightGray}
-                                 cursorColor={primaryBlue}
-                                 outlineColor={lightGray}
-                                 activeOutlineColor={primaryBlue}
-                                 outlineStyle={{ borderRadius: 4 }}
-                                 secureTextEntry={!showPassword}
-                                 right={
-                                    <TextInput.Icon
-                                       icon={showPassword ? "eye-off" : "eye"}
-                                       iconColor={textLightGray}
-                                       size={20}
-                                       onPress={() => {
-                                          setShowPassword(!showPassword);
-                                       }}
-                                    />
-                                 }
-                                 style={{ marginTop: 10 }}
-                              />
-                              {errors.password && touched.password ? (
-                                 <Text style={styles.errorText}>
-                                    {errors.password}
-                                 </Text>
-                              ) : null}
-                              <View
-                                 style={{
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    marginVertical: 10,
-                                 }}
-                              >
-                                 <View
-                                    style={{
-                                       flexDirection: "row",
-                                       alignItems: "center",
-                                    }}
-                                 >
-                                    <Checkbox
-                                       status={
-                                          rememberMe ? "checked" : "unchecked"
-                                       }
-                                       color={primaryBlue}
-                                       uncheckedColor={lightGray}
-                                       onPress={() => {
-                                          setRememberMe(!rememberMe);
-                                       }}
-                                    />
-                                    <Text
-                                       style={{
-                                          fontFamily: "fontRegular",
-                                          fontSize: 16,
-                                       }}
-                                    >
-                                       Remember me
-                                    </Text>
-                                 </View>
-                                 <Button
-                                    mode="text"
-                                    textColor={primaryBlue}
-                                    labelStyle={{
-                                       textDecorationLine: "underline",
-                                       textDecorationStyle: "solid",
-                                       fontFamily: "fontRegular",
-                                       fontSize: 16,
-                                    }}
-                                    onPress={() => {
-                                       navigation.navigate("ForgotPassword");
-                                    }}
-                                 >
-                                    Forgot password
-                                 </Button>
-                              </View>
-                              <Button
-                                 mode="contained"
-                                 style={{ width: "100%", borderRadius: 9 }}
-                                 buttonColor={primaryBlue}
-                                 labelStyle={{
-                                    fontFamily: "fontRegular",
-                                    fontSize: 16,
-                                 }}
-                                 onPress={handleSubmit}
-                                 disabled={
-                                    errors.email || errors.password
-                                       ? true
-                                       : false
-                                 }
-                              >
-                                 Login
-                              </Button>
-                           </View>
-                           {/* <View
-                              style={{
-                                 marginVertical: 8,
-                                 alignItems: "center",
-                              }}
-                           >
-                              <IconButton
-                                 icon={"microsoft"}
+                  }) => (
+                     <View>
+                        <TextInput
+                           mode="outlined"
+                           label={"Email"}
+                           keyboardType="email-address"
+                           keyboardAppearance="dark"
+                           onChangeText={handleChange("email")}
+                           onBlur={handleBlur("email")}
+                           value={values.email}
+                           selectionColor={lightGray}
+                           cursorColor={primaryBlue}
+                           outlineColor={lightGray}
+                           activeOutlineColor={primaryBlue}
+                           outlineStyle={{ borderRadius: 4 }}
+                        />
+                        {errors.email && touched.email && (
+                           <Text style={[styles.errorText, { fontFamily: "fontRegular" }]}>
+                              {errors.email}
+                           </Text>
+                        )}
+                        <TextInput
+                           mode="outlined"
+                           label={"Password"}
+                           keyboardType="default"
+                           onChangeText={handleChange("password")}
+                           onBlur={handleBlur("password")}
+                           value={values.password}
+                           selectionColor={lightGray}
+                           cursorColor={primaryBlue}
+                           outlineColor={lightGray}
+                           activeOutlineColor={primaryBlue}
+                           outlineStyle={{ borderRadius: 4 }}
+                           secureTextEntry={!showPassword}
+                           right={
+                              <TextInput.Icon
+                                 icon={showPassword ? "eye-off" : "eye"}
+                                 iconColor={textLightGray}
                                  size={20}
                                  onPress={() => {
-                                    handleMicrosoftLogin();
+                                    setShowPassword(!showPassword);
                                  }}
                               />
-                           </View> */}
-                           <View
+                           }
+                           style={{ marginTop: 10 }}
+                        />
+                        {errors.password && touched.password && (
+                           <Text style={[styles.errorText, { fontFamily: "fontRegular" }]}>
+                              {errors.password}
+                           </Text>
+                        )}
+
+                        <View style={styles.rememberForgotContainer}>
+                           <View style={{ flexDirection: "row", alignItems: "center" }}>
+                              <Checkbox
+                                 status={rememberMe ? "checked" : "unchecked"}
+                                 color={primaryBlue}
+                                 uncheckedColor={lightGray}
+                                 onPress={() => setRememberMe(!rememberMe)}
+                              />
+                              <Text style={{ fontFamily: "fontRegular", fontSize: 16 }}>
+                                 Remember me
+                              </Text>
+                           </View>
+                           <Button
+                              mode="text"
+                              textColor={primaryBlue}
+                              labelStyle={{
+                                 textDecorationLine: "underline",
+                                 fontFamily: "fontRegular",
+                                 fontSize: 16,
+                              }}
+                              onPress={() => navigation.navigate("ForgotPassword")}
+                           >
+                              Forgot password
+                           </Button>
+                        </View>
+
+                        <Button
+                           mode="contained"
+                           style={{ width: "100%", borderRadius: 9 }}
+                           buttonColor={primaryBlue}
+                           labelStyle={{
+                              fontFamily: "fontRegular",
+                              fontSize: 16,
+                           }}
+                           onPress={handleSubmit}
+                           disabled={errors.email || errors.password ? true : false}
+                        >
+                           Login
+                        </Button>
+
+                        <View style={styles.signupContainer}>
+                           <Text
                               style={{
-                                 flexDirection: "row",
-                                 alignItems: "center",
-                                 justifyContent: "center",
+                                 fontFamily: "fontRegular",
+                                 fontSize: 16,
+                                 color: textLightGray,
                               }}
                            >
-                              <Text
-                                 style={{
-                                    fontFamily: "fontRegular",
-                                    fontSize: 16,
-                                    color: textLightGray,
-                                 }}
-                              >
-                                 Don't have an account?{" "}
-                              </Text>
-                              <Button
-                                 mode="text"
-                                 textColor={primaryBlue}
-                                 labelStyle={{
-                                    textDecorationLine: "underline",
-                                    textDecorationStyle: "solid",
-                                    fontFamily: "fontRegular",
-                                    fontSize: 16,
-                                 }}
-                                 onPress={() => {
-                                    navigation.navigate("SignUp");
-                                 }}
-                              >
-                                 Sign up
-                              </Button>
-                           </View>
+                              Don't have an account?{" "}
+                           </Text>
+                           <Button
+                              mode="text"
+                              textColor={primaryBlue}
+                              labelStyle={{
+                                 textDecorationLine: "underline",
+                                 fontFamily: "fontRegular",
+                                 fontSize: 16,
+                              }}
+                              onPress={() => navigation.navigate("SignUp")}
+                           >
+                              Sign up
+                           </Button>
                         </View>
-                     );
-                  }}
+                     </View>
+                  )}
                </Formik>
             </View>
          </View>
@@ -275,14 +233,12 @@ const styles = StyleSheet.create({
       height: 150,
    },
    title: {
-      fontFamily: "fontBold",
       fontSize: 24,
       color: textDarkGray,
       textAlign: "center",
       margin: 15,
    },
    text: {
-      fontFamily: "fontRegular",
       fontSize: 16,
       color: textLightGray,
       width: "70%",
@@ -294,9 +250,20 @@ const styles = StyleSheet.create({
    },
    errorText: {
       color: darkRed,
-      fontFamily: "fontRegular",
       fontSize: 16,
       marginTop: 3,
+   },
+   rememberForgotContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginVertical: 10,
+   },
+   signupContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 10,
    },
 });
 
