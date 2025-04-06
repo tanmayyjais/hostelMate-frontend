@@ -21,6 +21,7 @@ const AddNewComplain = ({ navigation }) => {
    const [selectedImage, setSelectedImage] = useState(null);
 
    const addNewComplainSchema = Yup.object({
+      category: Yup.string().required("Category is required!"),
       title: Yup.string().required("Title is required!"),
       description: Yup.string().required("Description is required!"),
    });
@@ -56,6 +57,7 @@ const AddNewComplain = ({ navigation }) => {
          const formattedToken = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
 
          const formData = new FormData();
+         formData.append("category", values.category);
          formData.append("title", values.title);
          formData.append("description", values.description);
 
@@ -100,11 +102,24 @@ const AddNewComplain = ({ navigation }) => {
          <View style={styles.contentContainer}>
             <Formik
                onSubmit={(values) => handleAddNewComplain(values)}
-               initialValues={{ title: "", description: "" }}
+               initialValues={{ category: "", title: "", description: "" }}
                validationSchema={addNewComplainSchema}
             >
                {({ handleBlur, handleChange, handleSubmit, values, errors, touched }) => (
                   <View style={styles.form}>
+                     {/* Category Input */}
+                     <TextInput
+                        mode="outlined"
+                        label="Category"
+                        placeholder="E.g. Electrical, Plumbing, etc."
+                        onChangeText={handleChange("category")}
+                        onBlur={handleBlur("category")}
+                        style={styles.input}
+                     />
+                     {errors.category && touched.category && (
+                        <Text style={styles.errorText}>{errors.category}</Text>
+                     )}
+
                      {/* Title Input */}
                      <TextInput
                         mode="outlined"

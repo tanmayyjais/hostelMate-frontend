@@ -1,6 +1,6 @@
 import { ScrollView } from "react-native-gesture-handler";
 import { useState } from "react";
-import { View, Text, Image, StyleSheet, ToastAndroid } from "react-native";
+import { View, Text, Image, StyleSheet, Alert, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, TextInput } from "react-native-paper";
 import DropDown from "react-native-paper-dropdown";
@@ -18,8 +18,8 @@ const SignUp = ({ navigation }) => {
    const [showPassword, setShowPassword] = useState(false);
 
    const showToast = () => {
-      ToastAndroid.show("User registered successfully!", ToastAndroid.SHORT);
-   };
+        Alert.alert("Success", "User registered successfully!");
+    };
 
    const handleSignUp = (values) => {
       axios
@@ -36,7 +36,9 @@ const SignUp = ({ navigation }) => {
          .then((res) => {
             console.log(res.data);
             showToast();
-            navigation.navigate("Login");
+            setTimeout(() => {
+               navigation.navigate("Login");
+            }, 500);
          })
          .catch((e) => {
             console.log(e);

@@ -13,22 +13,31 @@ export const AuthProvider = ({ children }) => {
 
    const isLoggedIn = async () => {
       try {
-         let token = await AsyncStorage.getItem("userToken");
-         let storedUserInfo = await AsyncStorage.getItem("userInfo");
+         const token = await AsyncStorage.getItem("userToken");
+         const storedUserInfo = await AsyncStorage.getItem("userInfo");
 
          console.log("🔍 Retrieving user info from AsyncStorage:", storedUserInfo);
 
-         storedUserInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
+         let parsedUserInfo = null;
+         try {
+            parsedUserInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
+         } catch (parseErr) {
+            console.error("⚠️ Error parsing stored user info:", parseErr);
+         }
 
-         if (storedUserInfo) {
-            setUserInfo(storedUserInfo);
+         if (parsedUserInfo && token) {
+            setUserInfo(parsedUserInfo);
             setUserToken(token);
          } else {
-            console.error("❌ User Info is null or undefined in AsyncStorage");
+            console.warn("⚠️ Stored user data or token missing/invalid.");
+            setUserInfo(null);
+            setUserToken(null);
          }
       } catch (e) {
          console.error(`AsyncStorage Error: ${e.message}`);
          setErr(e);
+         setUserInfo(null);
+         setUserToken(null);
       } finally {
          setIsLoading(false);
       }
@@ -43,21 +52,27 @@ export const AuthProvider = ({ children }) => {
       try {
          const res = await axios.post(`${baseUrl}auth/login`, { email, password });
 
-         if (res.data && res.data.user) {
-            console.log("✅ User Info received from API:", res.data.user);
-            console.log("🔑 Token received from API:", res.data.token);
+         if (res.data && res.data.user && res.data.token) {
+            const { user, token } = res.data;
 
-            setUserInfo(res.data.user);
-            setUserToken(res.data.token);
+            console.log("✅ User Info received from API:", user);
+            console.log("🔑 Token received from API:", token);
 
-            await AsyncStorage.setItem("userToken", res.data.token);
-            await AsyncStorage.setItem("userInfo", JSON.stringify(res.data.user));
+            setUserInfo(user);
+            setUserToken(token);
+
+            await AsyncStorage.setItem("userToken", token);
+            await AsyncStorage.setItem("userInfo", JSON.stringify(user));
 
             return res.data;
+         } else {
+            console.warn("⚠️ Login response missing user or token.");
+            return null;
          }
       } catch (e) {
          console.error(`Login Error: ${e.message}`);
          setErr(e);
+         return null;
       } finally {
          setIsLoading(false);
       }
@@ -73,18 +88,31 @@ export const AuthProvider = ({ children }) => {
 
    const logout = async () => {
       setIsLoading(true);
-      setUserToken(null);
-      setUserInfo(null);
-      setErr(null);
-
-      await AsyncStorage.removeItem("userToken");
-      await AsyncStorage.removeItem("userInfo");
-
-      setIsLoading(false);
+      try {
+         setUserToken(null);
+         setUserInfo(null);
+         setErr(null);
+         await AsyncStorage.removeItem("userToken");
+         await AsyncStorage.removeItem("userInfo");
+      } catch (e) {
+         console.error("Logout error:", e);
+      } finally {
+         setIsLoading(false);
+      }
    };
 
    return (
-      <AuthContext.Provider value={{ login, logout, err, isLoading, userToken, userInfo, updateUser }}>
+      <AuthContext.Provider
+         value={{
+            login,
+            logout,
+            err,
+            isLoading,
+            userToken,
+            userInfo,
+            updateUser,
+         }}
+      >
          {children}
       </AuthContext.Provider>
    );

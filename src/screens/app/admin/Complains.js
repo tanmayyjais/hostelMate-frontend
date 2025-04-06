@@ -19,11 +19,13 @@ import {
 } from "../../../constants/Colors";
 import { List, TouchableRipple, Avatar, ActivityIndicator } from "react-native-paper";
 import { baseUrl } from "../../../config/BaseUrl";
+import ComplaintTrends from "../../../components/ComplaintTrends";
 
 const Complains = ({ navigation }) => {
    const [complains, setComplains] = useState([]);
    const [loading, setLoading] = useState(true);
    const [refreshing, setRefreshing] = useState(false);
+   const [token, setToken] = useState(null);
 
    const fetchComplaints = async () => {
       try {
@@ -31,6 +33,8 @@ const Complains = ({ navigation }) => {
          const token = await AsyncStorage.getItem("userToken");
          
          if (!token) throw new Error("No token found!");
+
+         setToken(token);
 
          const response = await axios.get(`${baseUrl}complaints`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -73,6 +77,7 @@ const Complains = ({ navigation }) => {
 
    return (
       <SafeAreaView style={styles.container}>
+         {token && <ComplaintTrends token={token} />}
          {loading ? (
             <ActivityIndicator animating={true} size="large" color={primaryBlue} />
          ) : (

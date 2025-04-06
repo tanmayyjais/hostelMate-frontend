@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useContext } from "react";
-import { View, Text, Image, RefreshControl, StyleSheet, FlatList } from "react-native";
+import { View, Text, Image, RefreshControl, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { white, textLightGray } from "../../../constants/Colors";
 import { Button, Avatar, TouchableRipple } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { baseUrl } from "../../../config/BaseUrl";
 
@@ -52,14 +53,15 @@ useEffect(() => {
    });
 
    return (
-      <ScrollView
-         style={{ flex: 1 }}
-         contentContainerStyle={{ backgroundColor: white, minHeight: "100%" }}
-         showsVerticalScrollIndicator={false}
-         refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-         }
-      >
+      <View style={{ flex: 1 }}>
+         <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ backgroundColor: white, minHeight: "100%" }}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+         >
          <View style={styles.container}>
             <View style={styles.contentContainer}>
                <View style={styles.profileDetails}>
@@ -294,13 +296,26 @@ useEffect(() => {
                         <Text style={styles.cardText}>Health Centre</Text>
                      </View>
                   </TouchableRipple>
-
-
                </View>
             </View>
          </View>
-      </ScrollView>
-   );
+         </ScrollView>
+
+         {/* Chatbot icon — stays fixed at bottom right */}
+         <View style={styles.chatbotFixedWrapper}>
+            <View style={styles.chatbotBubble}>
+               <Text style={styles.chatbotBubbleText}>💬 I'm here to help!</Text>
+            </View>
+            <TouchableOpacity
+               activeOpacity={0.6}
+               onPress={() => navigation.navigate("UserLexChatBot")}
+               style={styles.chatbotIconWrapper}
+            >
+               <MaterialCommunityIcons name="robot" size={30} color="#fff" />
+            </TouchableOpacity>
+         </View>
+         </View>
+);
 };
 
 const styles = StyleSheet.create({
@@ -411,6 +426,47 @@ const styles = StyleSheet.create({
       fontFamily: "fontBold",
       fontSize: 17,
       marginTop: 5,
+   },
+   chatbotFixedWrapper: {
+      position: "absolute",
+      bottom: 30,
+      right: 25,
+      zIndex: 999,
+      alignItems: "flex-end",
+   },
+   
+   chatbotBubble: {
+      backgroundColor: "#007bff",
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+      marginBottom: 8,
+      maxWidth: 180,
+      elevation: 4,
+      opacity: 0.9,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.3,
+      shadowRadius: 5,
+   },
+   
+   chatbotBubbleText: {
+      color: "white",
+      fontSize: 13,
+      fontWeight: "600",
+      opacity: 0.9,
+   },   
+   chatbotIconWrapper: {
+      backgroundColor: "#007bff",
+      width: 55,
+      height: 55,
+      borderRadius: 28,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.3,
+      shadowRadius: 5,
    },
 });
 

@@ -49,7 +49,7 @@ const App = () => {
    const theme = colorScheme === "dark" ? DarkTheme : LightTheme;
 
    return (
-      <PaperProvider settings={{ rippleEffectEnabled: false }}>
+      <PaperProvider theme={theme} settings={{ rippleEffectEnabled: false }}>
          <AuthProvider>
             <AppNav />
             <StatusBar backgroundColor={white} />

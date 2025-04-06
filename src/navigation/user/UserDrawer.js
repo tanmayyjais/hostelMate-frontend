@@ -14,6 +14,7 @@ import PaymentReceipts from "../../screens/app/user/PaymentReceipts";
 import HostelRules from "../../screens/app/user/HostelRules";
 import HostelAdministration from "../../screens/app/user/HostelAdmininstration";
 import HealthCentre from "../../screens/app/user/HealthCentre";
+import LexChatBot from "../../components/LexChatBot";
 
 import RoomAcceptance from "../../screens/app/user/rooms/RoomAcceptance";
 import ViewRoomAcceptance from "../../screens/app/user/rooms/ViewRoomAcceptance";
@@ -119,6 +120,10 @@ export const UserDashboard = () => {
          <DashboardStack.Screen
             name="UserHealthCentre"
             component={HealthCentre}
+         />
+         <DashboardStack.Screen
+            name="UserLexChatBot"
+            component={LexChatBot}
          />
 
       </DashboardStack.Navigator>

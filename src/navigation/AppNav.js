@@ -12,10 +12,10 @@ const AppNav = () => {
 
    return (
       <NavigationContainer>
-         {userToken !== null ? (
-            userInfo?.member_type === "student" ? (
+         {userToken && userInfo && userInfo.member_type ? (
+            userInfo.member_type === "student" ? (
                <UserNav />
-            ) : userInfo?.member_type === "academicStaff" ? (
+            ) : userInfo.member_type === "academicStaff" ? (
                <AppStack />
             ) : null
          ) : (
