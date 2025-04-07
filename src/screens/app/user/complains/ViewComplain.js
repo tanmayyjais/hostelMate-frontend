@@ -42,7 +42,9 @@ const ViewComplain = ({ navigation, route }) => {
 
                <View style={styles.complainContent}>
                   <Text style={styles.complainTitle}>{complain.title}</Text>
-
+                  <Text style={{ fontSize: 14, color: "#666", marginBottom: 10 }}>
+                     Category: {complain.category.toUpperCase()}
+                  </Text>
                   <View style={styles.divider}></View>
 
                   <Text style={styles.complainDescription}>{complain.description}</Text>

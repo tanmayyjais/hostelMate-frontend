@@ -80,7 +80,7 @@ const Complains = ({ navigation }) => {
                const { icon, color } = getStatusIcon(item.status);
                return (
                   <List.Item
-                     title={item.title}
+                     title={`${item.title} (${item.category})`}
                      description={item.description}
                      left={() => <MaterialIcons name={icon} size={24} color={color} />}
                      onPress={() => navigation.navigate("UserViewComplain", { complain: item })}

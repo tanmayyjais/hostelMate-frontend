@@ -1,114 +1,126 @@
-import { useState, useCallback, useContext, useEffect } from "react";
-import { View, Text, FlatList, RefreshControl, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar } from "react-native";
-import { List, Divider, ActivityIndicator } from "react-native-paper";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import {
+   View,
+   Text,
+   FlatList,
+   RefreshControl,
+   StyleSheet,
+   TouchableOpacity,
+   SafeAreaView,
+   StatusBar,
+   Alert,
+} from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../../../context/AuthContext";
 import axios from "axios";
 import { baseUrl } from "../../../config/BaseUrl";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 const StaffComplaints = ({ navigation }) => {
-   const [refreshing, setRefreshing] = useState(false);
-   const [loading, setLoading] = useState(true);
    const [complaints, setComplaints] = useState([]);
+   const [loading, setLoading] = useState(true);
+   const [refreshing, setRefreshing] = useState(false);
    const { userInfo } = useContext(AuthContext);
+   const [openIndex, setOpenIndex] = useState(null);
+
+   const statusOptions = [
+      { label: "Pending", value: "pending" },
+      { label: "Accepted", value: "accepted" },
+      { label: "Resolved", value: "resolved" },
+   ];
 
    const fetchDepartmentComplaints = async () => {
       try {
          setLoading(true);
          const token = await AsyncStorage.getItem("userToken");
-
-         if (!token) {
-            alert("Session expired. Please login again.");
-            return;
-         }
-
          const formattedToken = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
          const response = await axios.get(`${baseUrl}complaints/department`, {
             headers: { Authorization: formattedToken },
-            params: { department: userInfo?.department }
          });
-
          setComplaints(response.data);
-      } catch (error) {
-         console.error("Failed to fetch department complaints", error.message);
+      } catch (err) {
+         console.error("❌ Fetch Error:", err.message);
       } finally {
          setLoading(false);
       }
    };
 
-   useEffect(() => {
-      fetchDepartmentComplaints();
-   }, []);
+   const updateStatus = async (id, newStatus) => {
+      try {
+         const token = await AsyncStorage.getItem("userToken");
+         const formattedToken = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+         await axios.patch(`${baseUrl}complaints/${id}/status`, { status: newStatus }, {
+            headers: { Authorization: formattedToken },
+         });
+         fetchDepartmentComplaints();
+      } catch (error) {
+         console.error("❌ Status Update Error:", error.message);
+         Alert.alert("Error", "Failed to update complaint status.");
+      }
+   };
 
    const onRefresh = useCallback(() => {
       setRefreshing(true);
       fetchDepartmentComplaints().finally(() => setRefreshing(false));
    }, []);
 
-   const getStatusIcon = (status) => {
+   useEffect(() => {
+      fetchDepartmentComplaints();
+   }, []);
+
+   const getStatusColor = (status) => {
       switch (status.toLowerCase()) {
          case "pending":
-            return { icon: "hourglass-top", color: "#FFA500" };
+            return "#FFA500";
          case "accepted":
-            return { icon: "check-circle", color: "#007bff" };
+            return "#007bff";
          case "resolved":
-            return { icon: "done-all", color: "#28a745" };
+            return "#28a745";
          default:
-            return { icon: "help-outline", color: "#808080" };
+            return "#808080";
       }
    };
 
-   const renderItem = ({ item }) => {
-      const { icon, color } = getStatusIcon(item.status);
+   const renderItem = ({ item, index }) => {
+      const statusColor = getStatusColor(item.status);
+
       return (
-         <>
-            <TouchableOpacity
-               activeOpacity={0.7}
-               onPress={() => navigation.navigate("StaffViewComplain", { complain: item })}
-            >
-               <View style={styles.complaintCard}>
-                  <View style={styles.complaintHeader}>
-                     <MaterialIcons name={icon} size={24} color={color} style={styles.statusIcon} />
-                     <View style={styles.complaintTitleContainer}>
-                        <Text style={styles.complaintTitle} numberOfLines={1}>
-                           {item.title}
-                        </Text>
-                        <Text style={styles.complaintDate}>
-                           {new Date(item.createdAt).toLocaleDateString()}
-                        </Text>
-                     </View>
-                     <MaterialIcons name="chevron-right" size={24} color="#888" />
-                  </View>
-                  <Text style={styles.complaintDescription} numberOfLines={2}>
-                     {item.description}
+         <View style={styles.card}>
+            <View style={styles.headerRow}>
+               <MaterialIcons name="report-problem" size={24} color={statusColor} />
+               <View style={styles.titleContainer}>
+                  <Text style={styles.title}>{item.title}</Text>
+                  <Text style={styles.meta}>
+                     By: {item.user?.full_name} ({item.user?.email})
                   </Text>
-                  <View style={styles.statusIndicator}>
-                     <Text style={[styles.statusText, { color }]}>
-                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                     </Text>
-                  </View>
+                  <Text style={styles.meta}>
+                     {new Date(item.createdAt).toLocaleDateString()}
+                  </Text>
                </View>
-            </TouchableOpacity>
-            <Divider />
-         </>
-      );
-   };
-
-   const renderEmptyComponent = () => {
-      if (loading) {
-         return (
-            <View style={styles.emptyContainer}>
-               <ActivityIndicator size="large" color="#007bff" />
-               <Text style={styles.emptyText}>Loading complaints...</Text>
             </View>
-         );
-      }
-      
-      return (
-         <View style={styles.emptyContainer}>
-            <MaterialIcons name="inbox" size={64} color="#ccc" />
-            <Text style={styles.emptyText}>No complaints for your department</Text>
+            <Text style={styles.desc}>{item.description}</Text>
+
+            <View style={styles.actions}>
+               <Text style={[styles.statusText, { color: statusColor }]}>
+                  {item.status.toUpperCase()}
+               </Text>
+
+               <DropDownPicker
+                  open={openIndex === index}
+                  setOpen={(o) => setOpenIndex(o ? index : null)}
+                  value={item.status}
+                  items={statusOptions}
+                  setValue={(cb) => {
+                     const newValue = cb(item.status);
+                     updateStatus(item._id, newValue);
+                  }}
+                  containerStyle={{ width: 150, zIndex: 9999 }}
+                  style={{ borderColor: "#ccc" }}
+                  dropDownContainerStyle={{ zIndex: 10000 }}
+                  listMode="SCROLLVIEW"
+               />
+            </View>
          </View>
       );
    };
@@ -116,124 +128,87 @@ const StaffComplaints = ({ navigation }) => {
    return (
       <SafeAreaView style={styles.safeArea}>
          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-         
          <View style={styles.header}>
-            <TouchableOpacity 
-               style={styles.backButton} 
-               onPress={() => navigation.goBack()}
-               hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                <Ionicons name="arrow-back" size={24} color="#007bff" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Department Complaints</Text>
          </View>
-         
+
          <FlatList
             data={complaints}
             keyExtractor={(item) => item._id}
             renderItem={renderItem}
-            ListEmptyComponent={renderEmptyComponent}
-            contentContainerStyle={styles.listContent}
             refreshControl={
-               <RefreshControl 
-                  refreshing={refreshing} 
+               <RefreshControl
+                  refreshing={refreshing}
                   onRefresh={onRefresh}
-                  colors={["#007bff"]} 
+                  colors={["#007bff"]}
                />
             }
+            contentContainerStyle={{ padding: 10, paddingBottom: 60 }}
          />
       </SafeAreaView>
    );
 };
 
 const styles = StyleSheet.create({
-   safeArea: {
-      flex: 1,
-      backgroundColor: "#fff",
-   },
-   container: {
-      flex: 1,
-      backgroundColor: "#f9f9f9",
-   },
+   safeArea: { flex: 1, backgroundColor: "#fff" },
    header: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      paddingVertical: 16,
-      paddingHorizontal: 16,
+      padding: 16,
       backgroundColor: "#ffffff",
+      borderBottomColor: "#ddd",
       borderBottomWidth: 1,
-      borderBottomColor: "#e0e0e0",
-      elevation: 2,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
    },
    backButton: {
       position: "absolute",
       left: 16,
-      padding: 4,
    },
    headerTitle: {
       fontSize: 18,
-      fontWeight: "600",
-      color: "#333333",
+      fontWeight: "bold",
    },
-   listContent: {
-      flexGrow: 1,
-      paddingBottom: 20,
-   },
-   complaintCard: {
+   card: {
+      backgroundColor: "#fff",
+      borderRadius: 8,
       padding: 16,
-      backgroundColor: "#ffffff",
+      marginBottom: 10,
+      elevation: 2,
    },
-   complaintHeader: {
+   headerRow: {
       flexDirection: "row",
-      alignItems: "center",
-      marginBottom: 8,
+      alignItems: "flex-start",
    },
-   statusIcon: {
-      marginRight: 12,
-   },
-   complaintTitleContainer: {
+   titleContainer: {
       flex: 1,
+      marginLeft: 12,
    },
-   complaintTitle: {
+   title: {
       fontSize: 16,
       fontWeight: "600",
-      color: "#333333",
    },
-   complaintDate: {
+   meta: {
       fontSize: 12,
-      color: "#888888",
-      marginTop: 2,
+      color: "#777",
    },
-   complaintDescription: {
+   desc: {
       fontSize: 14,
-      color: "#555555",
-      marginBottom: 10,
-      lineHeight: 20,
+      color: "#444",
+      marginTop: 8,
    },
-   statusIndicator: {
+   actions: {
       flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: 12,
       alignItems: "center",
-      justifyContent: "flex-end",
+      zIndex: 1000,
    },
    statusText: {
-      fontSize: 12,
-      fontWeight: "500",
-   },
-   emptyContainer: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 60,
-   },
-   emptyText: {
-      fontSize: 16,
-      color: "#888888",
-      marginTop: 12,
+      fontWeight: "600",
+      fontSize: 13,
    },
 });
 

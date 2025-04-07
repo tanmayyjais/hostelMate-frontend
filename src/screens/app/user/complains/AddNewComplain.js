@@ -6,8 +6,8 @@ import {
    TouchableOpacity,
    Image,
    Alert,
+   ScrollView,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Button, TextInput } from "react-native-paper";
 import { Formik } from "formik";
@@ -15,10 +15,18 @@ import * as Yup from "yup";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { baseUrl } from "../../../../config/BaseUrl";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons"; 
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import DropDownPicker from "react-native-dropdown-picker";
 
 const AddNewComplain = ({ navigation }) => {
    const [selectedImage, setSelectedImage] = useState(null);
+   const [open, setOpen] = useState(false);
+   const [categoryItems, setCategoryItems] = useState([
+      { label: "Electrical", value: "electrical" },
+      { label: "Water", value: "water" },
+      { label: "Maintenance", value: "maintenance" },
+      { label: "Security", value: "security" },
+   ]);
 
    const addNewComplainSchema = Yup.object({
       category: Yup.string().required("Category is required!"),
@@ -26,10 +34,9 @@ const AddNewComplain = ({ navigation }) => {
       description: Yup.string().required("Description is required!"),
    });
 
-   // Function to pick an image
    const pickImage = async () => {
       let result = await ImagePicker.launchImageLibraryAsync({
-         mediaTypes: ['images'],
+         mediaTypes: ["images"],
          allowsEditing: true,
          aspect: [4, 3],
          quality: 1,
@@ -40,7 +47,6 @@ const AddNewComplain = ({ navigation }) => {
       }
    };
 
-   // Function to remove selected image
    const removeImage = () => {
       setSelectedImage(null);
    };
@@ -90,8 +96,7 @@ const AddNewComplain = ({ navigation }) => {
    };
 
    return (
-      <ScrollView style={styles.container}>
-         {/* Header with Back Button and Title */}
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
          <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                <Ionicons name="arrow-back" size={24} color="black" />
@@ -105,33 +110,36 @@ const AddNewComplain = ({ navigation }) => {
                initialValues={{ category: "", title: "", description: "" }}
                validationSchema={addNewComplainSchema}
             >
-               {({ handleBlur, handleChange, handleSubmit, values, errors, touched }) => (
+               {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
                   <View style={styles.form}>
-                     {/* Category Input */}
-                     <TextInput
-                        mode="outlined"
-                        label="Category"
-                        placeholder="E.g. Electrical, Plumbing, etc."
-                        onChangeText={handleChange("category")}
-                        onBlur={handleBlur("category")}
-                        style={styles.input}
+                     <DropDownPicker
+                        open={open}
+                        setOpen={setOpen}
+                        value={values.category}
+                        items={categoryItems}
+                        setItems={setCategoryItems}
+                        setValue={(val) => setFieldValue("category", val())}
+                        placeholder="Select Complaint Category"
+                        style={styles.dropdown}
+                        dropDownContainerStyle={{ zIndex: 1000 }}
                      />
                      {errors.category && touched.category && (
                         <Text style={styles.errorText}>{errors.category}</Text>
                      )}
 
-                     {/* Title Input */}
                      <TextInput
                         mode="outlined"
                         label="Title"
                         placeholder="Enter Complaint Title"
                         onChangeText={handleChange("title")}
                         onBlur={handleBlur("title")}
+                        value={values.title}
                         style={styles.input}
                      />
-                     {errors.title && touched.title && <Text style={styles.errorText}>{errors.title}</Text>}
+                     {errors.title && touched.title && (
+                        <Text style={styles.errorText}>{errors.title}</Text>
+                     )}
 
-                     {/* Description Input */}
                      <TextInput
                         mode="outlined"
                         label="Description"
@@ -140,17 +148,18 @@ const AddNewComplain = ({ navigation }) => {
                         numberOfLines={4}
                         onChangeText={handleChange("description")}
                         onBlur={handleBlur("description")}
+                        value={values.description}
                         style={[styles.input, styles.textArea]}
                      />
-                     {errors.description && touched.description && <Text style={styles.errorText}>{errors.description}</Text>}
+                     {errors.description && touched.description && (
+                        <Text style={styles.errorText}>{errors.description}</Text>
+                     )}
 
-                     {/* Image Picker */}
                      <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
                         <Ionicons name="image-outline" size={24} color="#007bff" />
                         <Text style={styles.imagePickerText}>Select an Image</Text>
                      </TouchableOpacity>
 
-                     {/* Show Image Preview If Selected */}
                      {selectedImage && (
                         <View style={styles.imagePreviewContainer}>
                            <Image source={{ uri: selectedImage }} style={styles.previewImage} />
@@ -160,7 +169,6 @@ const AddNewComplain = ({ navigation }) => {
                         </View>
                      )}
 
-                     {/* Submit Button */}
                      <Button mode="contained" onPress={handleSubmit} style={styles.submitButton}>
                         Submit Complaint
                      </Button>
@@ -175,14 +183,13 @@ const AddNewComplain = ({ navigation }) => {
 const styles = StyleSheet.create({
    container: {
       flex: 1,
-      padding: 20,
       backgroundColor: "#f8f9fa",
    },
    header: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      paddingBottom: 15,
+      padding: 15,
    },
    backButton: {
       position: "absolute",
@@ -194,11 +201,14 @@ const styles = StyleSheet.create({
    },
    contentContainer: {
       width: "100%",
-      alignItems: "center",
+      paddingHorizontal: 20,
    },
    form: {
-      width: "100%",
       marginTop: 10,
+   },
+   dropdown: {
+      marginBottom: 10,
+      borderColor: "#ccc",
    },
    input: {
       marginBottom: 10,
