@@ -54,9 +54,9 @@ const Login = ({ navigation }) => {
             setLoginError("Login failed. Please check your credentials.");
             Alert.alert("Login Failed", "Invalid credentials or account doesn't exist.");
          }
-                   else {
-            setLoginError("Login failed. Please check your credentials.");
-            Alert.alert("Login Failed", "Invalid credentials or account doesn't exist.");
+            else {
+            setLoginError("Login Successful", "You have logged in successfully!");
+            Alert.alert("Login Successful", "You have logged in successfully!");
          }
       } catch (error) {
          console.error("Login error:", error);

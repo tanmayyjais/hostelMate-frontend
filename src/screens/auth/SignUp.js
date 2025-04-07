@@ -36,39 +36,15 @@ const SignUp = ({ navigation }) => {
       };
     
       axios
-<<<<<<< HEAD
-         .post(`${baseUrl}auth/register`, {
-            email: values.email,
-            full_name: values.name,
-            password: values.password,
-            member_type: values.memberType,
-            mobile_no: values.mobileNo,
-            gender: values.gender,
-            enrollment_no: values.enrollmentNo,
-            id_number: values.idNumber,
-         })
-         .then((res) => {
-            console.log(res.data);
-            showToast();
-            setTimeout(() => {
-               navigation.navigate("Login");
-            }, 500);
-         })
-         .catch((e) => {
-            console.log(e);
-         });
-   };
-=======
         .post(`${baseUrl}auth/register`, payload)
         .then((res) => {
-          ToastAndroid.show("User registered successfully!", ToastAndroid.SHORT);
+          showToast();
           navigation.navigate("Login");
         })
         .catch((e) => {
           console.log(e);
         });
     };    
->>>>>>> tanmay-feature
 
    const signUpSchema = Yup.object({
       email: Yup.string().email("Enter a valid email!").required("Email is required!"),

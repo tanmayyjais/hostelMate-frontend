@@ -27,6 +27,7 @@ const LexChatBot = ({ navigation }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [showGreeting, setShowGreeting] = useState(true);
   const flatListRef = useRef(null);
+  const inputRef = useRef(null);
   
   // Enhanced animation setup with more explicit values
   const dot1Anim = useRef(new Animated.Value(0)).current;
@@ -34,7 +35,7 @@ const LexChatBot = ({ navigation }) => {
   const dot3Anim = useRef(new Animated.Value(0)).current;
   const greetingOpacity = useRef(new Animated.Value(1)).current;
 
-  // Critical fix: This function is now directly controlling animations without loops
+  // Improved animation with smoother transitions
   const startTypingAnimation = () => {
     // Reset animation values first
     dot1Anim.setValue(0);
@@ -43,43 +44,46 @@ const LexChatBot = ({ navigation }) => {
     
     // Create a sequence that repeats indefinitely
     Animated.loop(
-      Animated.sequence([
+      Animated.stagger(150, [
         // First dot animation
-        Animated.timing(dot1Anim, { 
-          toValue: 1, 
-          duration: 400, 
-          useNativeDriver: true 
-        }),
-        // Second dot animation (with slight overlap)
-        Animated.timing(dot2Anim, { 
-          toValue: 1, 
-          duration: 400, 
-          useNativeDriver: true 
-        }),
-        // Third dot animation (with slight overlap)
-        Animated.timing(dot3Anim, { 
-          toValue: 1, 
-          duration: 400, 
-          useNativeDriver: true 
-        }),
-        // Reset first dot
-        Animated.timing(dot1Anim, { 
-          toValue: 0.3, 
-          duration: 400, 
-          useNativeDriver: true 
-        }),
-        // Reset second dot
-        Animated.timing(dot2Anim, { 
-          toValue: 0.3, 
-          duration: 400, 
-          useNativeDriver: true 
-        }),
-        // Reset third dot
-        Animated.timing(dot3Anim, { 
-          toValue: 0.3, 
-          duration: 400, 
-          useNativeDriver: true 
-        }),
+        Animated.sequence([
+          Animated.timing(dot1Anim, { 
+            toValue: 1, 
+            duration: 300, 
+            useNativeDriver: true 
+          }),
+          Animated.timing(dot1Anim, { 
+            toValue: 0.4, 
+            duration: 300, 
+            useNativeDriver: true 
+          }),
+        ]),
+        // Second dot animation
+        Animated.sequence([
+          Animated.timing(dot2Anim, { 
+            toValue: 1, 
+            duration: 300, 
+            useNativeDriver: true 
+          }),
+          Animated.timing(dot2Anim, { 
+            toValue: 0.4, 
+            duration: 300, 
+            useNativeDriver: true 
+          }),
+        ]),
+        // Third dot animation
+        Animated.sequence([
+          Animated.timing(dot3Anim, { 
+            toValue: 1, 
+            duration: 300, 
+            useNativeDriver: true 
+          }),
+          Animated.timing(dot3Anim, { 
+            toValue: 0.4, 
+            duration: 300, 
+            useNativeDriver: true 
+          }),
+        ]),
       ])
     ).start();
   };
@@ -147,7 +151,7 @@ const LexChatBot = ({ navigation }) => {
     scrollToBottom();
   }, [messages]);
 
-  // Critical fix: Separated effect for animation control
+  // Separated effect for animation control
   useEffect(() => {
     if (isTyping) {
       // Start animation when typing begins
@@ -207,7 +211,7 @@ const LexChatBot = ({ navigation }) => {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     
-    // CRITICAL FIX: Set typing indicator BEFORE the API call
+    // Set typing indicator before the API call
     setIsTyping(true);
     
     Keyboard.dismiss();
@@ -234,7 +238,7 @@ const LexChatBot = ({ navigation }) => {
       setTimeout(() => {
         const botTimestamp = new Date().toISOString();
         setMessages((prev) => [...prev, { sender: "bot", text: botReply, timestamp: botTimestamp }]);
-        // CRITICAL FIX: Only turn off typing indicator AFTER adding the message
+        // Only turn off typing indicator AFTER adding the message
         setIsTyping(false);
       }, typingDelay);
     } catch (err) {
@@ -295,6 +299,18 @@ const LexChatBot = ({ navigation }) => {
     );
   };
 
+  // Added function to prefill questions
+  const prefillQuestion = (question) => {
+    setInput(question);
+    // Focus the input field
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  // Calculate if we should show the typing indicator as a new message
+  const isLastMessageFromUser = messages.length > 0 && messages[messages.length - 1].sender === "user";
+
   return (
     <KeyboardAvoidingView
       style={styles.wrapper}
@@ -330,6 +346,47 @@ const LexChatBot = ({ navigation }) => {
         initialNumToRender={15}
         maxToRenderPerBatch={10}
         windowSize={10}
+        ListFooterComponent={() => (
+          // Show typing indicator as part of the message list for proper positioning
+          isTyping && isLastMessageFromUser ? (
+            <View style={styles.typingContainer}>
+              <Avatar.Image
+                size={28}
+                source={require("../../assets/images/VNIT.png")}
+                style={styles.typingAvatar}
+              />
+              <View style={styles.typingBubble}>
+                <Animated.View 
+                  style={[
+                    styles.typingDot, 
+                    { 
+                      opacity: dot1Anim,
+                      transform: [{ scale: Animated.add(0.8, Animated.multiply(dot1Anim, 0.5)) }] 
+                    }
+                  ]} 
+                />
+                <Animated.View 
+                  style={[
+                    styles.typingDot, 
+                    { 
+                      opacity: dot2Anim,
+                      transform: [{ scale: Animated.add(0.8, Animated.multiply(dot2Anim, 0.5)) }] 
+                    }
+                  ]} 
+                />
+                <Animated.View 
+                  style={[
+                    styles.typingDot, 
+                    { 
+                      opacity: dot3Anim,
+                      transform: [{ scale: Animated.add(0.8, Animated.multiply(dot3Anim, 0.5)) }] 
+                    }
+                  ]} 
+                />
+              </View>
+            </View>
+          ) : null
+        )}
       />
 
       {showGreeting && messages.length === 0 && (
@@ -345,62 +402,16 @@ const LexChatBot = ({ navigation }) => {
           </Text>
           <TouchableOpacity 
             style={styles.greetingButton} 
-            onPress={() => {
-              setInput("Tell me about campus facilities");
-              setTimeout(() => {
-                const inputField = document.getElementById("chatInput");
-                if (inputField) inputField.focus();
-              }, 100);
-            }}
+            onPress={() => prefillQuestion("Tell me about campus facilities")}
           >
             <Text style={styles.greetingButtonText}>Get started</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
 
-      {/* CRITICAL FIX: Updated typing indicator with clearer styling and forced visibility */}
-      {isTyping && (
-        <View style={styles.typingIndicator}>
-          <Avatar.Image
-            size={28}
-            source={require("../../assets/images/VNIT.png")}
-            style={styles.typingAvatar}
-          />
-          <View style={styles.typingBubble}>
-            <Animated.View 
-              style={[
-                styles.typingDot, 
-                { 
-                  opacity: dot1Anim,
-                  transform: [{ scale: Animated.add(0.8, Animated.multiply(dot1Anim, 0.5)) }] 
-                }
-              ]} 
-            />
-            <Animated.View 
-              style={[
-                styles.typingDot, 
-                { 
-                  opacity: dot2Anim,
-                  transform: [{ scale: Animated.add(0.8, Animated.multiply(dot2Anim, 0.5)) }] 
-                }
-              ]} 
-            />
-            <Animated.View 
-              style={[
-                styles.typingDot, 
-                { 
-                  opacity: dot3Anim,
-                  transform: [{ scale: Animated.add(0.8, Animated.multiply(dot3Anim, 0.5)) }] 
-                }
-              ]} 
-            />
-          </View>
-        </View>
-      )}
-
       <View style={styles.inputRow}>
         <TextInput
-          id="chatInput"
+          ref={inputRef}
           value={input}
           onChangeText={setInput}
           placeholder="Type a message..."
@@ -467,7 +478,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#006aff",
     paddingHorizontal: 16,
-    paddingVertical: 14, // Reduced from 16
+    paddingVertical: 14,
     elevation: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -482,13 +493,13 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   headerTitle: {
-    fontSize: 18, // Reduced from 20
+    fontSize: 18,
     fontWeight: "600",
     color: "white",
     textAlign: "center",
   },
   messagesContainer: {
-    padding: 12, // Reduced from 14
+    padding: 12,
     paddingBottom: 100,
   },
   userRow: { 
@@ -513,11 +524,11 @@ const styles = StyleSheet.create({
   },
   userMsg: {
     backgroundColor: "#dcfce7",
-    padding: 10, // Reduced from 12
-    marginHorizontal: 6, // Reduced from 8
-    borderRadius: 16, // Reduced from 18
+    padding: 10,
+    marginHorizontal: 6,
+    borderRadius: 16,
     borderBottomRightRadius: 4,
-    maxWidth: "70%", // Reduced from 75%
+    maxWidth: "70%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -526,11 +537,11 @@ const styles = StyleSheet.create({
   },
   botMsg: {
     backgroundColor: "#f0f0f0",
-    padding: 10, // Reduced from 12
-    marginHorizontal: 6, // Reduced from 8
-    borderRadius: 16, // Reduced from 18
+    padding: 10,
+    marginHorizontal: 6,
+    borderRadius: 16,
     borderBottomLeftRadius: 4,
-    maxWidth: "70%", // Reduced from 75%
+    maxWidth: "70%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -538,63 +549,65 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   userFollowupMsg: {
-    borderTopRightRadius: 10, // Reduced from full radius
-    marginRight: 40, // Reduced from 44
+    borderTopRightRadius: 10,
+    marginRight: 40,
   },
   botFollowupMsg: {
-    borderTopLeftRadius: 10, // Reduced from full radius
-    marginLeft: 40, // Reduced from 44
+    borderTopLeftRadius: 10,
+    marginLeft: 40,
   },
   timestamp: {
-    fontSize: 10, // Reduced from 11
+    fontSize: 10,
     color: "#888",
     alignSelf: "flex-end",
-    marginTop: 3, // Reduced from 4
+    marginTop: 3,
   },
   dateLabel: {
     alignSelf: "center",
-    fontSize: 12, // Reduced from 13
+    fontSize: 12,
     color: "#999",
-    marginVertical: 12, // Reduced from 14
-    paddingHorizontal: 10, // Reduced from 12
-    paddingVertical: 3, // Reduced from 4
+    marginVertical: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     backgroundColor: "rgba(0,0,0,0.05)",
-    borderRadius: 10, // Reduced from 12
+    borderRadius: 10,
     overflow: "hidden",
   },
-  // Improved typing indicator styling
-  typingIndicator: {
+  // Updated typing indicator styling to be part of the message flow
+  typingContainer: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    paddingHorizontal: 16,
-    marginLeft: 40, // Align with the bot messages
-    marginBottom: 8,
-    position: "absolute", 
-    bottom: 70, // Position above the input box
-    zIndex: 10, // Ensure it's above other elements
+    alignItems: "flex-end",
+    marginBottom: 2,
+    marginTop: 10,
+    paddingLeft: 12,
   },
   typingBubble: {
     backgroundColor: "#f0f0f0",
     borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 28,
-    width: 50,
+    height: 32,
+    width: 56,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 1,
+    marginLeft: 6,
+    borderBottomLeftRadius: 4,
   },
   typingDot: {
-    height: 5,
-    width: 5,
-    borderRadius: 2.5,
+    height: 6,
+    width: 6,
+    borderRadius: 3,
     backgroundColor: "#666",
     marginHorizontal: 2,
+  },
+  typingAvatar: {
+    backgroundColor: "transparent",
   },
   inputRow: {
     position: "absolute",
@@ -602,8 +615,8 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    padding: 10, // Reduced from 12
-    paddingHorizontal: 14, // Reduced from 16
+    padding: 10,
+    paddingHorizontal: 14,
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderColor: "#e0e0e0",
@@ -615,25 +628,25 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    paddingHorizontal: 14, // Reduced from 16
-    paddingVertical: 8, // Reduced from 12
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     backgroundColor: "#f5f5f5",
-    borderRadius: 20, // Reduced from 24
-    fontSize: 14, // Reduced from 15
+    borderRadius: 20,
+    fontSize: 14,
     borderWidth: 1,
     borderColor: "#e5e5e5",
     maxHeight: 100,
-    minHeight: 40, // Reduced from 46
+    minHeight: 40,
   },
   sendButton: {
-    marginLeft: 10, // Reduced from 12
+    marginLeft: 10,
     backgroundColor: "#006aff",
-    padding: 10, // Reduced from 12
+    padding: 10,
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
-    width: 40, // Reduced from 46
-    height: 40, // Reduced from 46
+    width: 40,
+    height: 40,
     shadowColor: "#006aff",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -651,31 +664,31 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 24, // Reduced from 30
-    paddingHorizontal: 24, // Reduced from 30
+    paddingVertical: 24,
+    paddingHorizontal: 24,
   },
   greetingAvatar: {
-    marginBottom: 16, // Reduced from 20
+    marginBottom: 16,
     backgroundColor: "transparent",
   },
   greetingTitle: {
-    fontSize: 22, // Reduced from 24
+    fontSize: 22,
     fontWeight: "700",
     color: "#333",
-    marginBottom: 8, // Reduced from 10
+    marginBottom: 8,
   },
   greetingText: {
-    fontSize: 15, // Reduced from 16
+    fontSize: 15,
     color: "#666",
     textAlign: "center",
-    lineHeight: 20, // Reduced from 22
-    marginBottom: 20, // Reduced from 24
+    lineHeight: 20,
+    marginBottom: 20,
   },
   greetingButton: {
     backgroundColor: "#006aff",
-    paddingVertical: 10, // Reduced from 12
-    paddingHorizontal: 18, // Reduced from 20
-    borderRadius: 18, // Reduced from 24
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 18,
     shadowColor: "#006aff",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -684,12 +697,8 @@ const styles = StyleSheet.create({
   },
   greetingButtonText: {
     color: "#fff",
-    fontSize: 15, // Reduced from 16
+    fontSize: 15,
     fontWeight: "600",
-  },
-  typingAvatar: {
-    backgroundColor: "transparent",
-    marginRight: 6,
   },
 });
 
