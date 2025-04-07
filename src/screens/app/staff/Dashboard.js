@@ -28,7 +28,7 @@ const StaffDashboard = ({ navigation }) => {
 
   const handleLogout = () => {
     logout();
-    //navigation.navigate("Welcome");
+   //navigation.navigate("Welcome");
   };
 
   return (
