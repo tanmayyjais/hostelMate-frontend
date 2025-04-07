@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
    const [userInfo, setUserInfo] = useState(null);
    const [err, setErr] = useState(null);
 
+   // ✅ Called when app launches to check saved credentials
    const isLoggedIn = async () => {
       try {
          const token = await AsyncStorage.getItem("userToken");
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }) => {
          }
 
          if (parsedUserInfo && token) {
+            console.log("✅ Auto-login successful");
             setUserInfo(parsedUserInfo);
             setUserToken(token);
          } else {
@@ -47,9 +49,11 @@ export const AuthProvider = ({ children }) => {
       isLoggedIn();
    }, []);
 
+   // ✅ Login Function
    const login = async (email, password) => {
       setIsLoading(true);
       try {
+         console.log("📤 Sending login request to:", `${baseUrl}auth/login`);
          const res = await axios.post(`${baseUrl}auth/login`, { email, password });
 
          if (res.data && res.data.user && res.data.token) {
@@ -64,20 +68,30 @@ export const AuthProvider = ({ children }) => {
             await AsyncStorage.setItem("userToken", token);
             await AsyncStorage.setItem("userInfo", JSON.stringify(user));
 
+            const savedToken = await AsyncStorage.getItem("userToken");
+            const savedUser = await AsyncStorage.getItem("userInfo");
+
+            console.log("📦 Saved token in AsyncStorage:", savedToken);
+            console.log("📦 Saved userInfo in AsyncStorage:", savedUser);
+
             return res.data;
          } else {
             console.warn("⚠️ Login response missing user or token.");
             return null;
          }
-      } catch (e) {
-         console.error(`Login Error: ${e.message}`);
-         setErr(e);
+      } catch (error) {
+         console.error("❌ Login Error:", error.message);
+         console.log("🧾 Full error response:", error.response?.data);
+         console.log("🧾 Status Code:", error.response?.status);
+
+         setErr(error);
          return null;
       } finally {
          setIsLoading(false);
       }
    };
 
+   // ✅ Update user info (e.g., department, name, etc.)
    const updateUser = async (updatedData) => {
       setUserInfo((prevUserInfo) => {
          const newUserInfo = { ...prevUserInfo, ...updatedData };
@@ -86,6 +100,7 @@ export const AuthProvider = ({ children }) => {
       });
    };
 
+   // ✅ Logout function
    const logout = async () => {
       setIsLoading(true);
       try {
