@@ -29,6 +29,7 @@ import { AuthContext } from "../../context/AuthContext";
 const Login = ({ navigation }) => {
    const [rememberMe, setRememberMe] = useState(false);
    const [showPassword, setShowPassword] = useState(false);
+   const [loginError, setLoginError] = useState(null);
 
    const { login, err, isLoading } = useContext(AuthContext);
 
@@ -42,18 +43,47 @@ const Login = ({ navigation }) => {
 
    if (!fontsLoaded) return null;
 
-   const handleLogin = (values) => {
-      login(values.email, values.password).then((userInfo) => {
-         if (userInfo) {
-            if (userInfo.member_type === "student") {
-               navigation.navigate("UserDashboard");
-            } else if (userInfo.member_type === "academicStaff") {
-               navigation.navigate("AdminDashboard");
-            }
-         } else {
-            Alert.alert("Failure", "Login failed!");
+   const handleLogin = async (values) => {
+      setLoginError(null); // Clear previous errors
+      
+      try {
+         const userInfo = await login(values.email, values.password);
+         console.log("👉 Login returned:", userInfo);
+         
+         if (!userInfo) {
+            setLoginError("Login failed. Please check your credentials.");
+            Alert.alert("Login Failed", "Invalid credentials or account doesn't exist.");
          }
-      });
+                   else {
+            setLoginError("Login failed. Please check your credentials.");
+            Alert.alert("Login Failed", "Invalid credentials or account doesn't exist.");
+         }
+      } catch (error) {
+         console.error("Login error:", error);
+         
+         // Handle different error cases
+         if (error.response) {
+            // The request was made and the server responded with a status code
+            if (error.response.status === 403) {
+               setLoginError("Access forbidden. Your account may be disabled or you don't have permission.");
+               Alert.alert("Access Denied", "Your account may be disabled or you don't have sufficient permissions.");
+            } else if (error.response.status === 401) {
+               setLoginError("Invalid credentials. Please check your email and password.");
+               Alert.alert("Authentication Failed", "Invalid email or password.");
+            } else {
+               setLoginError(`Server error: ${error.response.status}`);
+               Alert.alert("Server Error", "Something went wrong. Please try again later.");
+            }
+         } else if (error.request) {
+            // The request was made but no response was received
+            setLoginError("Network error. Please check your connection.");
+            Alert.alert("Network Error", "Unable to connect to the server. Please check your internet connection.");
+         } else {
+            // Something happened in setting up the request
+            setLoginError("Login error. Please try again.");
+            Alert.alert("Error", "An unexpected error occurred. Please try again.");
+         }
+      }
    };
 
    const loginSchema = Yup.object({
@@ -138,6 +168,13 @@ const Login = ({ navigation }) => {
                            </Text>
                         )}
 
+                        {/* Display login error message if any */}
+                        {loginError && (
+                           <Text style={[styles.errorText, { fontFamily: "fontRegular", marginTop: 10 }]}>
+                              {loginError}
+                           </Text>
+                        )}
+
                         <View style={styles.rememberForgotContainer}>
                            <View style={{ flexDirection: "row", alignItems: "center" }}>
                               <Checkbox
@@ -173,9 +210,9 @@ const Login = ({ navigation }) => {
                               fontSize: 16,
                            }}
                            onPress={handleSubmit}
-                           disabled={errors.email || errors.password ? true : false}
+                           disabled={isLoading || (errors.email || errors.password ? true : false)}
                         >
-                           Login
+                           {isLoading ? "Logging in..." : "Login"}
                         </Button>
 
                         <View style={styles.signupContainer}>

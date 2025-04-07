@@ -6,6 +6,7 @@ import "react-native-gesture-handler";
 import { LightScheme } from "./src/theme/lightScheme";
 import { DarkScheme } from "./src/theme/darkScheme";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import {
    fontBold,
@@ -49,12 +50,14 @@ const App = () => {
    const theme = colorScheme === "dark" ? DarkTheme : LightTheme;
 
    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider settings={{ rippleEffectEnabled: false }}>
          <AuthProvider>
             <AppNav />
             <StatusBar backgroundColor={white} />
          </AuthProvider>
       </PaperProvider>
+      </GestureHandlerRootView>
    );
 };
 
